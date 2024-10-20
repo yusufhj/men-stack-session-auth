@@ -31,13 +31,23 @@ app.use(
 // Controllers
 const authCtrl = require('./controllers/auth');
 
-// Routes
+// Public Routes
 // GET /
 app.get("/", async (req, res) => {
     res.render("index.ejs", { user: req.session.user });
 });
 
 app.use('/auth', authCtrl);
+
+
+// Private Routes
+app.get("/vip-lounge", (req, res) => {
+  if (req.session.user) {
+    res.send(`Welcome to the party ${req.session.user.username}.`);
+  } else {
+    res.sendStatus(404);
+  }
+});
 
 app.listen(port, () => {
   console.log(`The express app is ready on port ${port}!`);
