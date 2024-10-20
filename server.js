@@ -21,10 +21,16 @@ app.use(methodOverride("_method"));
 // Morgan for logging HTTP requests
 app.use(morgan('dev'));
 
+// Controllers
+const authCtrl = require('./controllers/auth');
 
 // Routes
+// GET /
+app.get("/", async (req, res) => {
+    res.render("index.ejs");
+});
 
-
+app.use('/auth', authCtrl);
 
 app.listen(port, () => {
   console.log(`The express app is ready on port ${port}!`);
