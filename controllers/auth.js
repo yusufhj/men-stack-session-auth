@@ -64,14 +64,16 @@ router.post('/sign-in', async (req, res) => {
         username: userInDB.username,
     };
 
-    res.redirect('/');
-    
+    req.session.save(() => {
+        res.redirect("/");
+      });
 });
 
 router.get('/sign-out', async (req, res) => {
     // destroy the session
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy(() => {
+        res.redirect("/");
+    });
 });
 
 module.exports = router;
