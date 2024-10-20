@@ -5,6 +5,8 @@ const session = require('express-session');
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 require("./config/database");
+const addUserToViews = require("./middleware/addUserToViews");
+const isSignedIn = require("./middleware/isSignedIn");
 
 
 const app = express();
@@ -21,6 +23,9 @@ app.use(methodOverride("_method"));
 // Morgan for logging HTTP requests
 app.use(morgan('dev'));
 
+// Controllers
+const authCtrl = require('./controllers/auth');
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -32,26 +37,30 @@ app.use(
   })
 );
 
-// Controllers
-const authCtrl = require('./controllers/auth');
+
+app.use(addUserToViews);
 
 // Public Routes
 // GET /
 app.get("/", async (req, res) => {
-    res.render("index.ejs", { user: req.session.user });
+    res.render("index.ejs");
 });
 
 app.use('/auth', authCtrl);
 
 
 // Private Routes
-app.get("/vip-lounge", (req, res) => {
+
+app.use(isSignedIn);
+// anything below this will require the user to be signed in
+app.get("/vip-lounge", isSignedIn, (req, res) => {
   if (req.session.user) {
     res.send(`Welcome to the party ${req.session.user.username}.`);
   } else {
     res.sendStatus(404);
   }
 });
+
 
 app.listen(port, () => {
   console.log(`The express app is ready on port ${port}!`);
